@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>DyslexAid</h1>
+    <p class="tagline">Make this page easier to read</p>
+  </header>
+
+  <main id="toggles">
+    <label class="row">
+      <span class="emoji">🔤</span>
+      <span class="text">
+        <span class="name">Friendly font</span>
+        <span class="desc">Rounded letters, wider spacing</span>
+      </span>
+      <input type="checkbox" data-feature="font">
+      <span class="switch"></span>
+    </label>
+
+    <label class="row">
+      <span class="emoji">📏</span>
+      <span class="text">
+        <span class="name">Comfy spacing</span>
+        <span class="desc">Taller lines, shorter paragraphs</span>
+      </span>
+      <input type="checkbox" data-feature="spacing">
+      <span class="switch"></span>
+    </label>
+
+    <label class="row">
+      <span class="emoji">⚡</span>
+      <span class="text">
+        <span class="name">Bionic reading</span>
+        <span class="desc">Bold word-starts guide your eye</span>
+      </span>
+      <input type="checkbox" data-feature="bionic">
+      <span class="switch"></span>
+    </label>
+
+    <label class="row">
+      <span class="emoji">🖍️</span>
+      <span class="text">
+        <span class="name">Reading ruler</span>
+        <span class="desc">Highlight bar follows your cursor</span>
+      </span>
+      <input type="checkbox" data-feature="ruler">
+      <span class="switch"></span>
+    </label>
+
+    <label class="row">
+      <span class="emoji">🌅</span>
+      <span class="text">
+        <span class="name">Warm tint</span>
+        <span class="desc">Cream background, less glare</span>
+      </span>
+      <input type="checkbox" data-feature="tint">
+      <span class="switch"></span>
+    </label>
+  </main>
+
+  <footer>Settings apply everywhere &amp; are remembered.</footer>
+  <script src="popup.js"></script>
+</body>
+</html>

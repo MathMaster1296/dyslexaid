@@ -1,0 +1,74 @@
+/* ============================================================
+   DyslexAid — page styles.
+   Every feature is keyed off an attribute on <html>, e.g.
+   <html data-dyslexaid-font="on">. The content script only
+   flips these attributes; CSS does the heavy lifting.
+   ============================================================ */
+
+/* ---------- 1. Friendly font ---------- */
+/* Rounded, distinct letterforms + wider letter/word spacing.
+   We deliberately skip icon fonts, code, and form controls so
+   we don't break site UI. */
+html[data-dyslexaid-font="on"] body,
+html[data-dyslexaid-font="on"] body :not(code):not(pre):not(kbd):not(samp):not([class*="icon"]):not([class*="fa-"]):not(i):not(input):not(textarea):not(select) {
+  font-family: "OpenDyslexic", "Comic Sans MS", "Comic Sans", Verdana, sans-serif !important;
+  letter-spacing: 0.03em !important;
+  word-spacing: 0.12em !important;
+}
+
+/* ---------- 2. Comfy spacing ---------- */
+html[data-dyslexaid-spacing="on"] body p,
+html[data-dyslexaid-spacing="on"] body li,
+html[data-dyslexaid-spacing="on"] body blockquote,
+html[data-dyslexaid-spacing="on"] body article,
+html[data-dyslexaid-spacing="on"] body section {
+  line-height: 1.9 !important;
+}
+html[data-dyslexaid-spacing="on"] body p {
+  margin-bottom: 1.2em !important;
+  max-width: 70ch;          /* long lines are hard to track back from */
+}
+
+/* ---------- 3. Bionic reading ---------- */
+/* The JS wraps the first part of each word in <b class="dyslexaid-bionic">.
+   Kept subtle: bold but not black. */
+b.dyslexaid-bionic {
+  font-weight: 700 !important;
+  color: inherit;
+}
+/* When bionic is off, the wrappers stay in the DOM but render
+   as normal text — cheap to toggle. */
+html:not([data-dyslexaid-bionic="on"]) b.dyslexaid-bionic {
+  font-weight: inherit !important;
+}
+
+/* ---------- 4. Reading ruler ---------- */
+/* A fixed, full-width band that the JS moves to follow the cursor.
+   pointer-events:none so it never blocks clicks. */
+#dyslexaid-ruler {
+  position: fixed;
+  left: 0;
+  width: 100vw;
+  height: 2.4em;
+  background: rgba(255, 200, 0, 0.16);
+  border-top: 1px solid rgba(255, 170, 0, 0.45);
+  border-bottom: 1px solid rgba(255, 170, 0, 0.45);
+  pointer-events: none;
+  z-index: 2147483646;      /* above nearly everything */
+  transition: top 0.05s linear;
+  display: none;
+}
+html[data-dyslexaid-ruler="on"] #dyslexaid-ruler { display: block; }
+
+/* ---------- 5. Warm tint ---------- */
+/* Cream background on the page and on elements that were white.
+   A gentle sepia filter softens harsh pure-white images too. */
+html[data-dyslexaid-tint="on"] body {
+  background-color: #faf4e3 !important;
+}
+html[data-dyslexaid-tint="on"] body :is(main, article, section, div, p):not([class*="dark"]) {
+  background-color: transparent;
+}
+html[data-dyslexaid-tint="on"] body {
+  filter: sepia(0.14) !important;
+}
