@@ -1,38 +1,76 @@
 /* ============================================================
    DyslexAid — popup logic.
-   1. On open: read saved settings, set each checkbox to match.
-   2. On toggle: save the new value, and tell the current tab's
-      content script to apply it immediately.
+   The popup never talks to pages directly: it reads settings to
+   draw itself, and every control just WRITES to storage. Content
+   scripts in all open tabs pick the change up via
+   chrome.storage.onChanged. One source of truth.
    ============================================================ */
 
+const $ = (sel) => document.querySelector(sel);
 const checkboxes = document.querySelectorAll("input[data-feature]");
 
-// 1. Reflect saved state in the UI.
-const features = [...checkboxes].map((cb) => cb.dataset.feature);
-chrome.storage.sync.get(features, (saved) => {
+const ZOOM_MIN = 100;
+const ZOOM_MAX = 160;
+const ZOOM_STEP = 10;
+
+let host = null; // hostname of the current tab, if it's a normal web page
+
+/* ---------- render UI from saved settings ---------- */
+async function render() {
+  const s = await chrome.storage.sync.get(null);
+
   for (const cb of checkboxes) {
-    cb.checked = Boolean(saved[cb.dataset.feature]);
+    cb.checked = Boolean(s[cb.dataset.feature]);
   }
-});
+  $("#zoom-value").textContent = (s.textZoom || 100) + "%";
 
-// 2. On change: persist + apply live.
+  if (host) {
+    $("#site-row").hidden = false;
+    $("#site-host").textContent = host;
+    $("#site-toggle").checked = !(s.pausedSites || []).includes(host);
+  }
+}
+
+/* ---------- wire up controls ---------- */
 for (const cb of checkboxes) {
-  cb.addEventListener("change", async () => {
-    const feature = cb.dataset.feature;
-    const on = cb.checked;
-
-    // Persist (storage.sync also syncs across the user's Chromes).
-    chrome.storage.sync.set({ [feature]: on });
-
-    // Tell the active tab to apply it right now.
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab?.id) {
-      chrome.tabs
-        .sendMessage(tab.id, { type: "toggle", feature, on })
-        .catch(() => {
-          /* Page without our content script (e.g. chrome:// pages) — fine,
-             the setting is saved and will apply on normal pages. */
-        });
-    }
+  cb.addEventListener("change", () => {
+    chrome.storage.sync.set({ [cb.dataset.feature]: cb.checked });
   });
 }
+
+async function nudgeZoom(delta) {
+  const { textZoom = 100 } = await chrome.storage.sync.get("textZoom");
+  const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, textZoom + delta));
+  chrome.storage.sync.set({ textZoom: next });
+}
+$("#zoom-down").addEventListener("click", () => nudgeZoom(-ZOOM_STEP));
+$("#zoom-up").addEventListener("click", () => nudgeZoom(ZOOM_STEP));
+
+$("#site-toggle").addEventListener("change", async (e) => {
+  const { pausedSites = [] } = await chrome.storage.sync.get("pausedSites");
+  const next = e.target.checked
+    ? pausedSites.filter((h) => h !== host) // enabled -> unpause
+    : [...new Set([...pausedSites, host])]; // disabled -> pause
+  chrome.storage.sync.set({ pausedSites: next });
+});
+
+$("#reset").addEventListener("click", () => {
+  chrome.storage.sync.clear();
+});
+
+/* ---------- init ---------- */
+(async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  try {
+    const url = new URL(tab.url);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      host = url.hostname;
+    }
+  } catch {
+    /* chrome:// pages etc. — no site row */
+  }
+  render();
+  // Keep the popup live if settings change while it's open
+  // (e.g. a keyboard shortcut or reset).
+  chrome.storage.onChanged.addListener(render);
+})();

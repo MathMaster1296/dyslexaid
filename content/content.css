@@ -72,3 +72,17 @@ html[data-dyslexaid-tint="on"] body :is(main, article, section, div, p):not([cla
 html[data-dyslexaid-tint="on"] body {
   filter: sepia(0.14) !important;
 }
+
+/* ---------- 6. Calm mode ---------- */
+/* Freezes animations, transitions, and smooth-scrolling.
+   Helps ADHD readers and people with vestibular/motion
+   sensitivity — pages hold still. */
+html[data-dyslexaid-calm="on"] *,
+html[data-dyslexaid-calm="on"] *::before,
+html[data-dyslexaid-calm="on"] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+html[data-dyslexaid-calm="on"] {
+  scroll-behavior: auto !important;
+}

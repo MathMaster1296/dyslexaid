@@ -1,94 +1,94 @@
 /* ============================================================
    DyslexAid — content script.
-   Runs inside every page. Three jobs:
-     1. On load, read saved settings and apply them.
-     2. Listen for toggle messages from the popup.
-     3. Implement the two features CSS can't do alone:
-        bionic reading (rewrites text) and the ruler (follows mouse).
+   Runs inside every page.
+
+   Architecture: chrome.storage.sync is the single source of
+   truth. The popup and the keyboard-shortcut service worker
+   only WRITE settings; this script listens for storage changes
+   and applies them. No custom messaging needed, and every open
+   tab stays in sync automatically.
    ============================================================ */
 
-const FEATURES = ["font", "spacing", "bionic", "ruler", "tint"];
+const FEATURES = ["font", "spacing", "bionic", "ruler", "tint", "calm"];
 const root = document.documentElement;
+const HOST = location.hostname;
 
-/* ---------- applying a setting ----------
-   For most features this is literally one attribute flip;
-   the CSS file keyed to these attributes does the rest. */
+/* ---------- applying settings ----------
+   Most features are one attribute flip; content.css does the
+   rest. Bionic and the ruler have JS components. */
 function applySetting(feature, on) {
   if (on) {
     root.setAttribute(`data-dyslexaid-${feature}`, "on");
   } else {
     root.removeAttribute(`data-dyslexaid-${feature}`);
   }
-
-  // Features with a JS component:
-  if (feature === "bionic" && on) ensureBionic();
+  if (feature === "bionic") on ? startBionic() : stopBionic();
   if (feature === "ruler") on ? startRuler() : stopRuler();
 }
 
-/* ---------- load saved settings on page load ---------- */
-chrome.storage.sync.get(FEATURES, (saved) => {
-  for (const f of FEATURES) {
-    if (saved[f]) applySetting(f, true);
-  }
-});
+function applyAll(s) {
+  // Per-site pause: if this hostname is paused, everything off.
+  const paused = (s.pausedSites || []).includes(HOST);
+  for (const f of FEATURES) applySetting(f, !paused && Boolean(s[f]));
 
-/* ---------- listen for the popup's toggle messages ---------- */
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  if (msg.type === "toggle" && FEATURES.includes(msg.feature)) {
-    applySetting(msg.feature, msg.on);
-    sendResponse({ ok: true });
+  // Text zoom (Chrome supports the zoom property natively).
+  const zoom = paused ? 100 : s.textZoom || 100;
+  if (document.body) {
+    document.body.style.zoom = zoom === 100 ? "" : String(zoom / 100);
   }
-});
+}
+
+function refresh() {
+  chrome.storage.sync.get(null, applyAll);
+}
+
+refresh(); // apply saved settings on page load
+chrome.storage.onChanged.addListener(refresh); // react to popup/shortcuts
 
 /* ============================================================
    Bionic reading.
-   Walk every text node in the page's readable areas and wrap
-   the first ~40% of each word in <b class="dyslexaid-bionic">.
-   We do it once and leave the wrappers in place — toggling off
-   just un-bolds them via CSS, so re-enabling is instant.
+   Wrap the first ~40% of each word in <b class="dyslexaid-bionic">.
+   A TreeWalker visits only text nodes, skipping anything unsafe
+   to rewrite. A MutationObserver catches content added after
+   page load (infinite scroll, comments, SPAs).
+   Wrappers stay in the DOM when toggled off — CSS un-bolds them,
+   so re-enabling is instant.
    ============================================================ */
-let bionicDone = false;
-
-// Elements whose text we must never rewrite.
 const SKIP_TAGS = new Set([
   "SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT", "SELECT",
   "CODE", "PRE", "KBD", "SAMP", "B", "SVG", "CANVAS", "BUTTON",
 ]);
 
-function ensureBionic() {
-  if (bionicDone) return;
-  bionicDone = true;
+let observer = null;
+let pendingNodes = new Set();
+let processTimer = null;
+let selfMutating = false; // our own DOM edits must not re-trigger us
 
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode(node) {
-        if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-        // Reject if any ancestor is a skip tag or is editable.
-        for (let el = node.parentElement; el; el = el.parentElement) {
-          if (SKIP_TAGS.has(el.tagName) || el.isContentEditable) {
-            return NodeFilter.FILTER_REJECT;
-          }
+function bionicize(container) {
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      for (let el = node.parentElement; el; el = el.parentElement) {
+        if (SKIP_TAGS.has(el.tagName) || el.isContentEditable) {
+          return NodeFilter.FILTER_REJECT;
         }
-        return NodeFilter.FILTER_ACCEPT;
-      },
-    }
-  );
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
 
   // Collect first: mutating while walking confuses the TreeWalker.
   const textNodes = [];
   while (walker.nextNode()) textNodes.push(walker.currentNode);
 
+  selfMutating = true;
   for (const node of textNodes) {
     const frag = document.createDocumentFragment();
-    // Split into words and the whitespace between them, keeping both.
     for (const part of node.nodeValue.split(/(\s+)/)) {
       if (!part.trim() || part.length < 2) {
         frag.appendChild(document.createTextNode(part));
         continue;
       }
-      // Bold the first ~40% of the word (at least 1 letter).
       const cut = Math.max(1, Math.ceil(part.length * 0.4));
       const b = document.createElement("b");
       b.className = "dyslexaid-bionic";
@@ -98,11 +98,43 @@ function ensureBionic() {
     }
     node.parentNode.replaceChild(frag, node);
   }
+  selfMutating = false;
+}
+
+function startBionic() {
+  bionicize(document.body);
+  if (observer) return;
+  observer = new MutationObserver((mutations) => {
+    if (selfMutating) return;
+    for (const m of mutations) {
+      for (const n of m.addedNodes) {
+        if (n.nodeType === Node.ELEMENT_NODE && n.id !== "dyslexaid-ruler") {
+          pendingNodes.add(n);
+        }
+      }
+    }
+    // Debounce: process new content in batches, not per-mutation.
+    clearTimeout(processTimer);
+    processTimer = setTimeout(() => {
+      const batch = [...pendingNodes];
+      pendingNodes.clear();
+      for (const node of batch) {
+        if (node.isConnected) bionicize(node);
+      }
+    }, 300);
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
+function stopBionic() {
+  // CSS already un-bolds existing wrappers; just stop watching.
+  observer?.disconnect();
+  observer = null;
+  pendingNodes.clear();
 }
 
 /* ============================================================
-   Reading ruler.
-   One fixed-position band, moved to track the cursor's Y.
+   Reading ruler — a fixed band that follows the cursor.
    ============================================================ */
 let rulerEl = null;
 

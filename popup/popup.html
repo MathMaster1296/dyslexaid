@@ -10,6 +10,16 @@
     <p class="tagline">Make this page easier to read</p>
   </header>
 
+  <label class="row site-row" id="site-row" hidden>
+    <span class="emoji">🌐</span>
+    <span class="text">
+      <span class="name">On this site</span>
+      <span class="desc" id="site-host"></span>
+    </span>
+    <input type="checkbox" id="site-toggle">
+    <span class="switch"></span>
+  </label>
+
   <main id="toggles">
     <label class="row">
       <span class="emoji">🔤</span>
@@ -60,9 +70,35 @@
       <input type="checkbox" data-feature="tint">
       <span class="switch"></span>
     </label>
+
+    <label class="row">
+      <span class="emoji">🧘</span>
+      <span class="text">
+        <span class="name">Calm mode</span>
+        <span class="desc">Freeze animations &amp; motion</span>
+      </span>
+      <input type="checkbox" data-feature="calm">
+      <span class="switch"></span>
+    </label>
+
+    <div class="row zoom-row">
+      <span class="emoji">🔍</span>
+      <span class="text">
+        <span class="name">Text size</span>
+        <span class="desc">Zoom the whole page</span>
+      </span>
+      <span class="stepper">
+        <button id="zoom-down" aria-label="Smaller text">−</button>
+        <span id="zoom-value">100%</span>
+        <button id="zoom-up" aria-label="Bigger text">+</button>
+      </span>
+    </div>
   </main>
 
-  <footer>Settings apply everywhere &amp; are remembered.</footer>
+  <footer>
+    <span class="hint">⌥⇧R ruler · ⌥⇧B bionic</span>
+    <button id="reset">Reset all</button>
+  </footer>
   <script src="popup.js"></script>
 </body>
 </html>
