@@ -1,3 +1,20 @@
+/* Bundled OpenDyslexic font (SIL OFL licensed — see fonts/OFL.txt).
+   Weighted letter-bottoms reduce letter flipping/mirroring. */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("chrome-extension://__MSG_@@extension_id__/fonts/OpenDyslexic-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("chrome-extension://__MSG_@@extension_id__/fonts/OpenDyslexic-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ============================================================
    DyslexAid — page styles.
    Every feature is keyed off an attribute on <html>, e.g.

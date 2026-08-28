@@ -2,8 +2,12 @@
   "manifest_version": 3,
   "name": "DyslexAid — Reading Assistant",
   "description": "Make any page easier to read: friendly fonts, comfy spacing, bionic reading, a reading ruler, warm tint, and calm mode.",
-  "version": "1.1.0",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "version": "1.2.0",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -22,20 +26,40 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content/content.js"],
-      "css": ["content/content.css"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
       "run_at": "document_idle"
     }
   ],
   "commands": {
     "toggle-ruler": {
-      "suggested_key": { "default": "Alt+Shift+R" },
+      "suggested_key": {
+        "default": "Alt+Shift+R"
+      },
       "description": "Toggle the reading ruler"
     },
     "toggle-bionic": {
-      "suggested_key": { "default": "Alt+Shift+B" },
+      "suggested_key": {
+        "default": "Alt+Shift+B"
+      },
       "description": "Toggle bionic reading"
     }
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "fonts/*.woff2"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }

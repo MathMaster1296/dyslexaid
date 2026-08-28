@@ -26,10 +26,29 @@ function applySetting(feature, on) {
   if (feature === "ruler") on ? startRuler() : stopRuler();
 }
 
+/* Warm tint looks broken on dark-themed sites (sepia over near-black),
+   so detect a dark page background and skip tint there. */
+function pageIsDark() {
+  for (const el of [document.body, document.documentElement]) {
+    if (!el) continue;
+    const bg = getComputedStyle(el).backgroundColor;
+    const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (!m) continue;
+    if (m[4] !== undefined && parseFloat(m[4]) === 0) continue; // transparent
+    const luminance = 0.299 * m[1] + 0.587 * m[2] + 0.114 * m[3];
+    return luminance < 110;
+  }
+  return false; // no opaque background found — assume light
+}
+
 function applyAll(s) {
   // Per-site pause: if this hostname is paused, everything off.
   const paused = (s.pausedSites || []).includes(HOST);
-  for (const f of FEATURES) applySetting(f, !paused && Boolean(s[f]));
+  for (const f of FEATURES) {
+    let on = !paused && Boolean(s[f]);
+    if (f === "tint" && on && pageIsDark()) on = false;
+    applySetting(f, on);
+  }
 
   // Text zoom (Chrome supports the zoom property natively).
   const zoom = paused ? 100 : s.textZoom || 100;

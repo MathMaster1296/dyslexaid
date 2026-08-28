@@ -6,7 +6,7 @@ flip on any mix of:
 
 | Feature | What it does |
 |---|---|
-| 🔤 **Friendly font** | Rounded, distinct letterforms with wider letter & word spacing |
+| 🔤 **Friendly font** | [OpenDyslexic](https://opendyslexic.org) — weighted letter-bottoms that resist flipping/mirroring — with wider letter & word spacing |
 | 📏 **Comfy spacing** | Taller line height, paragraph breathing room, capped line length (~70ch) |
 | ⚡ **Bionic reading** | Bolds the first ~40% of every word so the eye anchors and glides — works on infinite-scroll feeds too |
 | 🖍️ **Reading ruler** | A soft highlight band follows your cursor so you never lose your line |
@@ -46,6 +46,10 @@ on the extension card, or just use any Wikipedia article).
   content added after page load (infinite scroll, SPAs, comment sections).
   Wrappers stay in the DOM when toggled off (CSS renders them at normal
   weight), so re-enabling is instant.
+- **Smart tint:** the warm tint detects dark-themed pages (background
+  luminance check) and skips them rather than sepia-toning a black page.
+- **Keyboard accessible:** every popup control is focusable and operable
+  with Tab + Space, with visible focus rings.
 - **Minimal permissions:** just `storage`, `activeTab`, and `scripting`.
 
 ## Privacy
@@ -67,6 +71,13 @@ dyslexaid/
 └── demo/demo.html       # A page to try every feature on
 ```
 
+## Credits
+
+Bundles the [OpenDyslexic](https://github.com/antijingoist/opendyslexic)
+typeface by Abbie Gonzalez, used under the SIL Open Font License
+([fonts/OFL.txt](fonts/OFL.txt)).
+
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) for the extension code; the bundled font keeps its own
+SIL OFL license.

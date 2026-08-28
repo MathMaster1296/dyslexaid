@@ -32,8 +32,13 @@ h1 { font-size: 18px; letter-spacing: 0.02em; }
 .name { font-size: 14px; font-weight: 600; }
 .desc { font-size: 11.5px; color: #6b6b6b; margin-top: 1px; }
 
-/* Toggle switch: hide the real checkbox, style a track+thumb. */
-.row input { display: none; }
+/* Toggle switch: the real checkbox is visually hidden but still
+   focusable, so keyboard users can Tab to it and toggle with Space. */
+.row input {
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0;
+}
 .switch {
   width: 38px; height: 22px;
   border-radius: 11px;
@@ -116,3 +121,11 @@ footer {
   padding: 2px 4px;
 }
 #reset:hover { text-decoration: underline; }
+
+/* Keyboard focus rings */
+.row input:focus-visible + .switch,
+.stepper button:focus-visible,
+#reset:focus-visible {
+  outline: 2px solid #c0662d;
+  outline-offset: 2px;
+}
