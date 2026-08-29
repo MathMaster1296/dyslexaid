@@ -88,12 +88,3 @@ typeface by Abbie Gonzalez, used under the SIL Open Font License
 
 [MIT](LICENSE) for the extension code. The bundled font keeps its own SIL OFL
 license.
-
-## More from me
-
-- [Geode](https://mathmaster1296.github.io/geode/): solving polynomials with
-  polygons, an interactive companion to the hyper-Catalan series papers
-- [MindMasters Academy](https://mathmaster1296.github.io/mindmasters/): math
-  and chess training for K-8 competition students, in one offline HTML file
-- [Multiway Register Machine Explorer](https://mathmaster1296.github.io/multiway-register-machines/):
-  multiway register machines running in the browser, companion code for my paper
