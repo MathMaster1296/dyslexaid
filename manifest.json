@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "DyslexAid — Reading Assistant",
+  "name": "DyslexAid: Reading Assistant",
   "description": "Make any page easier to read: friendly fonts, comfy spacing, bionic reading, a reading ruler, warm tint, and calm mode.",
   "version": "1.2.0",
   "permissions": [

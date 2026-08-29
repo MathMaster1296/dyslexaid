@@ -1,5 +1,5 @@
 /* ============================================================
-   DyslexAid — content script.
+   DyslexAid content script.
    Runs inside every page.
 
    Architecture: chrome.storage.sync is the single source of
@@ -38,7 +38,7 @@ function pageIsDark() {
     const luminance = 0.299 * m[1] + 0.587 * m[2] + 0.114 * m[3];
     return luminance < 110;
   }
-  return false; // no opaque background found — assume light
+  return false; // no opaque background found, assume light
 }
 
 function applyAll(s) {
@@ -70,7 +70,7 @@ chrome.storage.onChanged.addListener(refresh); // react to popup/shortcuts
    A TreeWalker visits only text nodes, skipping anything unsafe
    to rewrite. A MutationObserver catches content added after
    page load (infinite scroll, comments, SPAs).
-   Wrappers stay in the DOM when toggled off — CSS un-bolds them,
+   Wrappers stay in the DOM when toggled off (CSS un-bolds them),
    so re-enabling is instant.
    ============================================================ */
 const SKIP_TAGS = new Set([
@@ -153,7 +153,7 @@ function stopBionic() {
 }
 
 /* ============================================================
-   Reading ruler — a fixed band that follows the cursor.
+   Reading ruler: a fixed band that follows the cursor.
    ============================================================ */
 let rulerEl = null;
 

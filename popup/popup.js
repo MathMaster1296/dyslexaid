@@ -1,9 +1,9 @@
 /* ============================================================
-   DyslexAid — popup logic.
+   DyslexAid popup logic.
    The popup never talks to pages directly: it reads settings to
    draw itself, and every control just WRITES to storage. Content
    scripts in all open tabs pick the change up via
-   chrome.storage.onChanged. One source of truth.
+   chrome.storage.onChanged, so storage stays the only source of truth.
    ============================================================ */
 
 const $ = (sel) => document.querySelector(sel);
@@ -67,7 +67,7 @@ $("#reset").addEventListener("click", () => {
       host = url.hostname;
     }
   } catch {
-    /* chrome:// pages etc. — no site row */
+    /* chrome:// pages and the like get no site row */
   }
   render();
   // Keep the popup live if settings change while it's open

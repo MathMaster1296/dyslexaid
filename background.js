@@ -1,7 +1,7 @@
 /* ============================================================
-   DyslexAid — service worker.
+   DyslexAid service worker.
    One job: turn keyboard shortcuts into settings flips.
-   It only writes to chrome.storage — content scripts in every
+   It only writes to chrome.storage; content scripts in every
    open tab react to the change on their own.
    ============================================================ */
 

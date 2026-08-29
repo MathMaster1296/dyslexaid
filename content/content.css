@@ -1,4 +1,4 @@
-/* Bundled OpenDyslexic font (SIL OFL licensed — see fonts/OFL.txt).
+/* Bundled OpenDyslexic font (SIL OFL licensed, see fonts/OFL.txt).
    Weighted letter-bottoms reduce letter flipping/mirroring. */
 @font-face {
   font-family: "OpenDyslexic";
@@ -16,7 +16,7 @@
 }
 
 /* ============================================================
-   DyslexAid — page styles.
+   DyslexAid page styles.
    Every feature is keyed off an attribute on <html>, e.g.
    <html data-dyslexaid-font="on">. The content script only
    flips these attributes; CSS does the heavy lifting.
@@ -54,7 +54,7 @@ b.dyslexaid-bionic {
   color: inherit;
 }
 /* When bionic is off, the wrappers stay in the DOM but render
-   as normal text — cheap to toggle. */
+   as normal text, which makes toggling cheap. */
 html:not([data-dyslexaid-bionic="on"]) b.dyslexaid-bionic {
   font-weight: inherit !important;
 }
@@ -93,7 +93,7 @@ html[data-dyslexaid-tint="on"] body {
 /* ---------- 6. Calm mode ---------- */
 /* Freezes animations, transitions, and smooth-scrolling.
    Helps ADHD readers and people with vestibular/motion
-   sensitivity — pages hold still. */
+   sensitivity: the page holds still. */
 html[data-dyslexaid-calm="on"] *,
 html[data-dyslexaid-calm="on"] *::before,
 html[data-dyslexaid-calm="on"] *::after {
