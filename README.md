@@ -6,14 +6,14 @@ flip on any mix of:
 
 | Feature | What it does |
 |---|---|
-| 🔤 **Friendly font** | Swaps in [OpenDyslexic](https://opendyslexic.org), whose weighted letter-bottoms resist flipping, and widens letter and word spacing |
-| 📏 **Comfy spacing** | Raises line height, adds paragraph breathing room, and caps line length around 70 characters |
-| ⚡ **Bionic reading** | Bolds the first ~40% of every word so the eye anchors and glides. Works on infinite-scroll feeds too |
-| 🖍️ **Reading ruler** | Puts a soft highlight band under your cursor so you never lose your line |
-| 🌅 **Warm tint** | Turns the background cream and adds gentle sepia to cut white-screen glare |
-| 🧘 **Calm mode** | Freezes animations, transitions, and motion on the page |
-| 🔍 **Text size** | Zooms the whole page from 100% to 160% |
-| 🌐 **Per-site pause** | Turns everything off for one site without losing your settings |
+| **Friendly font** | Swaps in [OpenDyslexic](https://opendyslexic.org), whose weighted letter-bottoms resist flipping, and widens letter and word spacing |
+| **Comfy spacing** | Raises line height, adds paragraph breathing room, and caps line length around 70 characters |
+| **Bionic reading** | Bolds the first ~40% of every word so the eye anchors and glides. Works on infinite-scroll feeds too |
+| **Reading ruler** | Puts a soft highlight band under your cursor so you never lose your line |
+| **Warm tint** | Turns the background cream and adds gentle sepia to cut white-screen glare |
+| **Calm mode** | Freezes animations, transitions, and motion on the page |
+| **Text size** | Zooms the whole page from 100% to 160% |
+| **Per-site pause** | Turns everything off for one site without losing your settings |
 
 Keyboard shortcuts: **Alt+Shift+R** toggles the ruler and **Alt+Shift+B**
 toggles bionic reading. Both can be changed at `chrome://extensions/shortcuts`.
