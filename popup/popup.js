@@ -58,6 +58,20 @@ $("#reset").addEventListener("click", () => {
   chrome.storage.sync.clear();
 });
 
+$("#options").addEventListener("click", () => {
+  chrome.runtime.openOptionsPage();
+});
+
+/* Read aloud is an action, not a setting, so it goes to the page
+   as a message. Closing the popup lets the user watch the page. */
+$("#speak").addEventListener("click", async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab?.id) {
+    chrome.tabs.sendMessage(tab.id, { type: "speak" }).catch(() => {});
+  }
+  window.close();
+});
+
 /* ---------- init ---------- */
 (async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

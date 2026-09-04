@@ -45,6 +45,10 @@ html[data-dyslexaid-spacing="on"] body p {
   margin-bottom: 1.2em !important;
   max-width: 70ch;          /* long lines are hard to track back from */
 }
+html[data-dyslexaid-spacing="on"] body p,
+html[data-dyslexaid-spacing="on"] body li {
+  text-align: left !important;  /* justified text creates rivers of whitespace */
+}
 
 /* ---------- 3. Bionic reading ---------- */
 /* The JS wraps the first part of each word in <b class="dyslexaid-bionic">.
@@ -77,18 +81,21 @@ html:not([data-dyslexaid-bionic="on"]) b.dyslexaid-bionic {
 }
 html[data-dyslexaid-ruler="on"] #dyslexaid-ruler { display: block; }
 
-/* ---------- 5. Warm tint ---------- */
-/* Cream background on the page and on elements that were white.
-   A gentle sepia filter softens harsh pure-white images too. */
-html[data-dyslexaid-tint="on"] body {
-  background-color: #faf4e3 !important;
-}
-html[data-dyslexaid-tint="on"] body :is(main, article, section, div, p):not([class*="dark"]) {
+/* ---------- 5. Tint overlay ---------- */
+/* The attribute value carries the chosen color, so the content
+   script sets data-dyslexaid-tint="cream" (or blue/yellow/green)
+   and the right palette applies. Cream also gets a gentle sepia
+   filter that softens harsh pure-white images. */
+html[data-dyslexaid-tint] body :is(main, article, section, div, p):not([class*="dark"]) {
   background-color: transparent;
 }
-html[data-dyslexaid-tint="on"] body {
+html[data-dyslexaid-tint="cream"] body {
+  background-color: #faf4e3 !important;
   filter: sepia(0.14) !important;
 }
+html[data-dyslexaid-tint="blue"] body   { background-color: #e6f0fa !important; }
+html[data-dyslexaid-tint="yellow"] body { background-color: #fdf3cf !important; }
+html[data-dyslexaid-tint="green"] body  { background-color: #e8f4e4 !important; }
 
 /* ---------- 6. Calm mode ---------- */
 /* Freezes animations, transitions, and smooth-scrolling.
@@ -102,4 +109,41 @@ html[data-dyslexaid-calm="on"] *::after {
 }
 html[data-dyslexaid-calm="on"] {
   scroll-behavior: auto !important;
+}
+
+/* ---------- 7. Line focus ---------- */
+/* A clear band that follows the cursor while the giant box-shadow
+   darkens everything around it. pointer-events:none keeps the page
+   clickable. */
+#dyslexaid-focus {
+  position: fixed;
+  left: 0;
+  width: 100vw;
+  height: 110px;
+  pointer-events: none;
+  z-index: 2147483645;
+  box-shadow: 0 0 0 200vmax rgba(24, 18, 8, 0.45);
+  transition: top 0.05s linear;
+  display: none;
+}
+html[data-dyslexaid-focus="on"] #dyslexaid-focus { display: block; }
+
+/* ---------- 8. Hide images ---------- */
+/* Fade rather than remove, so layout holds; hover brings one back. */
+html[data-dyslexaid-images="on"] body :is(img, picture, video, iframe, figure) {
+  opacity: 0.12 !important;
+  filter: grayscale(1);
+  transition: opacity 0.15s;
+}
+html[data-dyslexaid-images="on"] body :is(img, picture, video, iframe, figure):hover {
+  opacity: 1 !important;
+  filter: none;
+}
+
+/* ---------- 9. Underline links ---------- */
+/* Some sites strip underlines and rely on color alone, which is
+   hard on low-vision and color-blind readers. Put them back. */
+html[data-dyslexaid-links="on"] body a {
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
 }

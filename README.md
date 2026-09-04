@@ -15,8 +15,13 @@ flip on any mix of:
 | **Text size** | Zooms the whole page from 100% to 160% |
 | **Per-site pause** | Turns everything off for one site without losing your settings |
 
-Keyboard shortcuts: **Alt+Shift+R** toggles the ruler and **Alt+Shift+B**
-toggles bionic reading. Both can be changed at `chrome://extensions/shortcuts`.
+Keyboard shortcuts: **Alt+Shift+R** toggles the ruler, **Alt+Shift+B**
+toggles bionic reading, and **Alt+Shift+S** starts or stops read aloud. All
+three can be changed at `chrome://extensions/shortcuts`.
+
+The Settings link in the popup opens a page for the finer knobs: bionic
+boldness, tint color (cream, blue, yellow, or green), ruler height,
+read-aloud speed, and the list of paused sites.
 
 Settings are saved with `chrome.storage.sync`, so they persist across pages,
 restarts, and your other Chrome installs.
@@ -51,6 +56,13 @@ debounced `MutationObserver` catches content added after page load, which is
 what makes the feature work on infinite-scroll feeds and comment sections.
 When you toggle it off, the wrappers stay in the DOM and CSS renders them at
 normal weight, so turning it back on is instant.
+
+Read aloud uses the browser's built-in speech synthesis, so the audio is
+generated on your machine and no text goes anywhere. It is also the one
+place the extension uses a message instead of a setting: reading aloud is a
+command to act now, not a state to remember, so the popup or the shortcut
+sends `{type: "speak"}` to the active tab and the content script speaks or
+stops.
 
 A few smaller details: the warm tint measures the page's background luminance
 and leaves dark-themed pages alone, since sepia over near-black just looks muddy; every

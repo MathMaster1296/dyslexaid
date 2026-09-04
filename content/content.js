@@ -2,20 +2,34 @@
    DyslexAid content script.
    Runs inside every page.
 
-   Architecture: chrome.storage.sync is the single source of
-   truth. The popup and the keyboard-shortcut service worker
-   only WRITE settings; this script listens for storage changes
-   and applies them. No custom messaging needed, and every open
-   tab stays in sync automatically.
+   State vs actions: chrome.storage.sync holds all settings. The
+   popup, the options page, and the service worker only write
+   settings; this script listens for changes and applies them, so
+   every open tab stays in sync. One-off actions (read aloud)
+   arrive as runtime messages instead, because they are commands
+   to do something now, not state to keep.
    ============================================================ */
 
-const FEATURES = ["font", "spacing", "bionic", "ruler", "tint", "calm"];
+const FEATURES = [
+  "font", "spacing", "bionic", "ruler", "tint",
+  "calm", "focus", "images", "links",
+];
 const root = document.documentElement;
 const HOST = location.hostname;
 
+const DEFAULTS = {
+  textZoom: 100,
+  tintColor: "cream",
+  bionicStrength: 0.4,
+  rulerHeight: 42,
+  ttsRate: 1,
+};
+
+let settings = { ...DEFAULTS };
+
 /* ---------- applying settings ----------
    Most features are one attribute flip; content.css does the
-   rest. Bionic and the ruler have JS components. */
+   rest. Bionic, the ruler, and line focus have JS components. */
 function applySetting(feature, on) {
   if (on) {
     root.setAttribute(`data-dyslexaid-${feature}`, "on");
@@ -24,10 +38,11 @@ function applySetting(feature, on) {
   }
   if (feature === "bionic") on ? startBionic() : stopBionic();
   if (feature === "ruler") on ? startRuler() : stopRuler();
+  if (feature === "focus") on ? startFocus() : stopFocus();
 }
 
-/* Warm tint looks broken on dark-themed sites (sepia over near-black),
-   so detect a dark page background and skip tint there. */
+/* Tint looks broken on dark-themed sites (a pale wash over
+   near-black), so detect a dark page background and skip it. */
 function pageIsDark() {
   for (const el of [document.body, document.documentElement]) {
     if (!el) continue;
@@ -42,16 +57,32 @@ function pageIsDark() {
 }
 
 function applyAll(s) {
-  // Per-site pause: if this hostname is paused, everything off.
+  settings = { ...DEFAULTS, ...s };
   const paused = (s.pausedSites || []).includes(HOST);
+
   for (const f of FEATURES) {
     let on = !paused && Boolean(s[f]);
     if (f === "tint" && on && pageIsDark()) on = false;
     applySetting(f, on);
   }
 
-  // Text zoom (Chrome supports the zoom property natively).
-  const zoom = paused ? 100 : s.textZoom || 100;
+  // The tint attribute carries its color so CSS picks the palette.
+  if (root.hasAttribute("data-dyslexaid-tint")) {
+    root.setAttribute("data-dyslexaid-tint", settings.tintColor);
+  }
+
+  if (rulerEl) rulerEl.style.height = settings.rulerHeight + "px";
+
+  // A changed boldness level means existing wrappers are stale.
+  if (
+    root.hasAttribute("data-dyslexaid-bionic") &&
+    appliedStrength !== null &&
+    appliedStrength !== settings.bionicStrength
+  ) {
+    rewrapBionic();
+  }
+
+  const zoom = paused ? 100 : settings.textZoom;
   if (document.body) {
     document.body.style.zoom = zoom === 100 ? "" : String(zoom / 100);
   }
@@ -62,16 +93,16 @@ function refresh() {
 }
 
 refresh(); // apply saved settings on page load
-chrome.storage.onChanged.addListener(refresh); // react to popup/shortcuts
+chrome.storage.onChanged.addListener(refresh); // react to popup/options/shortcuts
 
 /* ============================================================
    Bionic reading.
-   Wrap the first ~40% of each word in <b class="dyslexaid-bionic">.
-   A TreeWalker visits only text nodes, skipping anything unsafe
-   to rewrite. A MutationObserver catches content added after
-   page load (infinite scroll, comments, SPAs).
-   Wrappers stay in the DOM when toggled off (CSS un-bolds them),
-   so re-enabling is instant.
+   Wrap the first part of each word (settings.bionicStrength of
+   its length) in <b class="dyslexaid-bionic">. A TreeWalker
+   visits only text nodes, skipping anything unsafe to rewrite.
+   A MutationObserver catches content added after page load
+   (infinite scroll, comments, SPAs). Wrappers stay in the DOM
+   when toggled off; CSS un-bolds them, so re-enabling is instant.
    ============================================================ */
 const SKIP_TAGS = new Set([
   "SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT", "SELECT",
@@ -82,6 +113,7 @@ let observer = null;
 let pendingNodes = new Set();
 let processTimer = null;
 let selfMutating = false; // our own DOM edits must not re-trigger us
+let appliedStrength = null; // boldness the current wrappers were made with
 
 function bionicize(container) {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
@@ -108,7 +140,7 @@ function bionicize(container) {
         frag.appendChild(document.createTextNode(part));
         continue;
       }
-      const cut = Math.max(1, Math.ceil(part.length * 0.4));
+      const cut = Math.max(1, Math.ceil(part.length * settings.bionicStrength));
       const b = document.createElement("b");
       b.className = "dyslexaid-bionic";
       b.textContent = part.slice(0, cut);
@@ -118,6 +150,19 @@ function bionicize(container) {
     node.parentNode.replaceChild(frag, node);
   }
   selfMutating = false;
+  appliedStrength = settings.bionicStrength;
+}
+
+function rewrapBionic() {
+  selfMutating = true;
+  const parents = new Set();
+  for (const b of document.querySelectorAll("b.dyslexaid-bionic")) {
+    parents.add(b.parentNode);
+    b.replaceWith(document.createTextNode(b.textContent));
+  }
+  for (const parent of parents) parent.normalize();
+  selfMutating = false;
+  bionicize(document.body);
 }
 
 function startBionic() {
@@ -127,7 +172,11 @@ function startBionic() {
     if (selfMutating) return;
     for (const m of mutations) {
       for (const n of m.addedNodes) {
-        if (n.nodeType === Node.ELEMENT_NODE && n.id !== "dyslexaid-ruler") {
+        if (
+          n.nodeType === Node.ELEMENT_NODE &&
+          n.id !== "dyslexaid-ruler" &&
+          n.id !== "dyslexaid-focus"
+        ) {
           pendingNodes.add(n);
         }
       }
@@ -153,23 +202,70 @@ function stopBionic() {
 }
 
 /* ============================================================
-   Reading ruler: a fixed band that follows the cursor.
+   Reading ruler: a soft band that follows the cursor.
+   Line focus: the inverse, everything BUT the band is dimmed.
+   Both are fixed elements moved on mousemove.
    ============================================================ */
 let rulerEl = null;
+let focusEl = null;
+
+function makeOverlay(id) {
+  const el = document.createElement("div");
+  el.id = id;
+  document.body.appendChild(el);
+  return el;
+}
 
 function moveRuler(e) {
   if (rulerEl) rulerEl.style.top = e.clientY - rulerEl.offsetHeight / 2 + "px";
 }
-
-function startRuler() {
-  if (!rulerEl) {
-    rulerEl = document.createElement("div");
-    rulerEl.id = "dyslexaid-ruler";
-    document.body.appendChild(rulerEl);
-  }
-  document.addEventListener("mousemove", moveRuler, { passive: true });
+function moveFocus(e) {
+  if (focusEl) focusEl.style.top = e.clientY - focusEl.offsetHeight / 2 + "px";
 }
 
+function startRuler() {
+  if (!rulerEl) rulerEl = makeOverlay("dyslexaid-ruler");
+  rulerEl.style.height = settings.rulerHeight + "px";
+  document.addEventListener("mousemove", moveRuler, { passive: true });
+}
 function stopRuler() {
   document.removeEventListener("mousemove", moveRuler);
 }
+
+function startFocus() {
+  if (!focusEl) focusEl = makeOverlay("dyslexaid-focus");
+  document.addEventListener("mousemove", moveFocus, { passive: true });
+}
+function stopFocus() {
+  document.removeEventListener("mousemove", moveFocus);
+}
+
+/* ============================================================
+   Read aloud, via the browser's built-in speech synthesis.
+   Entirely local: no audio or text leaves the machine. Reads the
+   selection if there is one, otherwise the article. Queued as
+   sentence-sized utterances because very long single utterances
+   are unreliable in Chrome. Triggered again, it stops.
+   ============================================================ */
+function readAloud() {
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    return;
+  }
+  const selection = getSelection().toString().trim();
+  const source =
+    selection ||
+    (document.querySelector("article, main") || document.body).innerText;
+  const text = source.slice(0, 30000);
+  const sentences = text.match(/[^.!?\n]+[.!?]*\s*/g) || [text];
+  for (const sentence of sentences) {
+    if (!sentence.trim()) continue;
+    const u = new SpeechSynthesisUtterance(sentence);
+    u.rate = settings.ttsRate;
+    speechSynthesis.speak(u);
+  }
+}
+
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "speak") readAloud();
+});
