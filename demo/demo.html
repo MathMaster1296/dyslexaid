@@ -6,13 +6,19 @@
   <style>
     body { font-family: Georgia, serif; max-width: 720px; margin: 40px auto; padding: 0 20px; color: #222; }
     h1 { border-bottom: 2px solid #ddd; padding-bottom: 8px; }
-    .pulse { display: inline-block; padding: 4px 10px; background: #e33; color: #fff; border-radius: 4px;
-             animation: pulse 1s infinite alternate; }
+    .pulse { display: inline-block; padding: 6px 12px; background: #c62828; color: #fff; border-radius: 4px;
+             font-weight: 700; animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
+    /* Anyone who has asked their OS for less motion gets a still badge. */
+    @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+    a:focus-visible { outline: 3px solid #c62828; outline-offset: 2px; }
   </style>
 </head>
 <body>
-  <h1>Why Reading on Screens Is Hard</h1>
+  <h1>Why reading on screens is hard</h1>
+  <p><em>This page is deliberately styled like an ordinary article: a serif
+  font, tight lines, and a bit of clutter. It exists so you can see what each
+  DyslexAid toggle changes.</em></p>
   <p><span class="pulse">DISTRACTING BADGE</span> (calm mode freezes this animation)</p>
   <p>For readers with dyslexia, a wall of tightly packed text in a thin typeface can
   feel like an obstacle course. Letters mirror and swap, lines blur together, and by

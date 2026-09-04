@@ -5,9 +5,9 @@
    State vs actions: chrome.storage.sync holds all settings. The
    popup, the options page, and the service worker only write
    settings; this script listens for changes and applies them, so
-   every open tab stays in sync. One-off actions (read aloud)
-   arrive as runtime messages instead, because they are commands
-   to do something now, not state to keep.
+   every open tab stays in sync. Read aloud is the exception: it
+   happens once and is over, so there is nothing to store, and it
+   arrives as a runtime message instead.
    ============================================================ */
 
 const FEATURES = [
@@ -174,8 +174,7 @@ function startBionic() {
       for (const n of m.addedNodes) {
         if (
           n.nodeType === Node.ELEMENT_NODE &&
-          n.id !== "dyslexaid-ruler" &&
-          n.id !== "dyslexaid-focus"
+          !n.id?.startsWith("dyslexaid-")
         ) {
           pendingNodes.add(n);
         }
@@ -247,9 +246,33 @@ function stopFocus() {
    sentence-sized utterances because very long single utterances
    are unreliable in Chrome. Triggered again, it stops.
    ============================================================ */
+let speakingEl = null;
+let queued = 0;
+
+/* A visible, clickable "reading aloud" control, so the reader can
+   see that speech is running and stop it without remembering a
+   shortcut. It is a real button, so it is keyboard reachable too. */
+function showSpeaking(on) {
+  if (!speakingEl) {
+    speakingEl = document.createElement("button");
+    speakingEl.id = "dyslexaid-speaking";
+    speakingEl.type = "button";
+    speakingEl.textContent = "Reading aloud. Click to stop.";
+    speakingEl.addEventListener("click", stopReading);
+    document.body.appendChild(speakingEl);
+  }
+  speakingEl.hidden = !on;
+}
+
+function stopReading() {
+  speechSynthesis.cancel();
+  queued = 0;
+  showSpeaking(false);
+}
+
 function readAloud() {
   if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
+    stopReading();
     return;
   }
   const selection = getSelection().toString().trim();
@@ -257,11 +280,20 @@ function readAloud() {
     selection ||
     (document.querySelector("article, main") || document.body).innerText;
   const text = source.slice(0, 30000);
-  const sentences = text.match(/[^.!?\n]+[.!?]*\s*/g) || [text];
+  const sentences = (text.match(/[^.!?\n]+[.!?]*\s*/g) || [text]).filter(
+    (s) => s.trim()
+  );
+  if (!sentences.length) return;
+
+  queued = sentences.length;
+  showSpeaking(true);
   for (const sentence of sentences) {
-    if (!sentence.trim()) continue;
     const u = new SpeechSynthesisUtterance(sentence);
     u.rate = settings.ttsRate;
+    u.onend = u.onerror = () => {
+      queued -= 1;
+      if (queued <= 0) showSpeaking(false);
+    };
     speechSynthesis.speak(u);
   }
 }

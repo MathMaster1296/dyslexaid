@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <title>DyslexAid</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -11,7 +12,7 @@
   </header>
 
   <label class="row site-row" id="site-row" hidden>
-    <span class="emoji">🌐</span>
+    <span class="emoji" aria-hidden="true">🌐</span>
     <span class="text">
       <span class="name">On this site</span>
       <span class="desc" id="site-host"></span>
@@ -22,7 +23,7 @@
 
   <main id="toggles">
     <label class="row">
-      <span class="emoji">🔤</span>
+      <span class="emoji" aria-hidden="true">🔤</span>
       <span class="text">
         <span class="name">Friendly font</span>
         <span class="desc">Rounded letters, wider spacing</span>
@@ -32,7 +33,7 @@
     </label>
 
     <label class="row">
-      <span class="emoji">📏</span>
+      <span class="emoji" aria-hidden="true">📏</span>
       <span class="text">
         <span class="name">Comfy spacing</span>
         <span class="desc">Taller lines, shorter paragraphs</span>
@@ -42,7 +43,7 @@
     </label>
 
     <label class="row">
-      <span class="emoji">⚡</span>
+      <span class="emoji" aria-hidden="true">⚡</span>
       <span class="text">
         <span class="name">Bionic reading</span>
         <span class="desc">Bold word-starts guide your eye</span>
@@ -52,92 +53,91 @@
     </label>
 
     <label class="row">
-      <span class="emoji">🖍️</span>
+      <span class="emoji" aria-hidden="true">🖍️</span>
       <span class="text">
         <span class="name">Reading ruler</span>
-        <span class="desc">Highlight bar follows your cursor</span>
+        <span class="desc">A highlight bar follows your cursor</span>
       </span>
       <input type="checkbox" data-feature="ruler">
       <span class="switch"></span>
     </label>
 
     <label class="row">
-      <span class="emoji">🎯</span>
+      <span class="emoji" aria-hidden="true">🎯</span>
       <span class="text">
         <span class="name">Line focus</span>
-        <span class="desc">Dim everything but your line</span>
+        <span class="desc">Dims everything but your line</span>
       </span>
       <input type="checkbox" data-feature="focus">
       <span class="switch"></span>
     </label>
 
     <label class="row">
-      <span class="emoji">🌅</span>
+      <span class="emoji" aria-hidden="true">🌅</span>
       <span class="text">
-        <span class="name">Warm tint</span>
-        <span class="desc">Cream background, less glare</span>
+        <span class="name">Tint</span>
+        <span class="desc">Softer background, less glare</span>
       </span>
       <input type="checkbox" data-feature="tint">
       <span class="switch"></span>
     </label>
 
     <label class="row">
-      <span class="emoji">🧘</span>
+      <span class="emoji" aria-hidden="true">🧘</span>
       <span class="text">
         <span class="name">Calm mode</span>
-        <span class="desc">Freeze animations &amp; motion</span>
+        <span class="desc">Freezes animations and motion</span>
       </span>
       <input type="checkbox" data-feature="calm">
       <span class="switch"></span>
     </label>
 
     <label class="row">
-      <span class="emoji">🖼️</span>
+      <span class="emoji" aria-hidden="true">🖼️</span>
       <span class="text">
         <span class="name">Hide images</span>
-        <span class="desc">Fade pictures, hover to reveal</span>
+        <span class="desc">Fades pictures, hover to reveal one</span>
       </span>
       <input type="checkbox" data-feature="images">
       <span class="switch"></span>
     </label>
 
     <label class="row">
-      <span class="emoji">🔗</span>
+      <span class="emoji" aria-hidden="true">🔗</span>
       <span class="text">
         <span class="name">Underline links</span>
-        <span class="desc">Bring back stripped underlines</span>
+        <span class="desc">Restores removed underlines</span>
       </span>
       <input type="checkbox" data-feature="links">
       <span class="switch"></span>
     </label>
 
     <div class="row zoom-row">
-      <span class="emoji">🔍</span>
+      <span class="emoji" aria-hidden="true">🔍</span>
       <span class="text">
-        <span class="name">Text size</span>
-        <span class="desc">Zoom the whole page</span>
+        <span class="name" id="zoom-label">Text size</span>
+        <span class="desc">Zoom the page</span>
       </span>
-      <span class="stepper">
+      <span class="stepper" role="group" aria-labelledby="zoom-label">
         <button id="zoom-down" aria-label="Smaller text">−</button>
-        <span id="zoom-value">100%</span>
+        <span id="zoom-value" aria-live="polite">100%</span>
         <button id="zoom-up" aria-label="Bigger text">+</button>
       </span>
     </div>
+
     <button class="row action" id="speak">
-      <span class="emoji">🔊</span>
+      <span class="emoji" aria-hidden="true">🔊</span>
       <span class="text">
         <span class="name">Read aloud</span>
-        <span class="desc">Selection or article. Press again to stop</span>
+        <span class="desc">Reads your selection, or the whole article</span>
       </span>
     </button>
   </main>
 
   <footer>
-    <span class="hint">⌥⇧R · ⌥⇧B · ⌥⇧S</span>
-    <span class="footer-buttons">
-      <button id="options">Settings</button>
-      <button id="reset">Reset all</button>
-    </span>
+    <button id="shortcuts">Shortcuts</button>
+    <button id="options">Settings</button>
+    <button id="reset">Reset all</button>
   </footer>
   <script src="popup.js"></script>
 </body>

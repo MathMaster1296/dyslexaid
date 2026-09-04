@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>DyslexAid settings</title>
@@ -8,14 +8,14 @@
 <body>
   <header>
     <h1>DyslexAid settings</h1>
-    <p class="tagline">Fine-tune how each feature behaves. Changes save instantly.</p>
+    <p class="tagline">Fine-tune how each feature behaves. Changes save as soon as you make them.</p>
   </header>
 
   <main>
     <section>
-      <h2>Bionic boldness</h2>
+      <h2 id="strength-title">Bionic boldness</h2>
       <p class="help">How much of each word gets bolded.</p>
-      <div class="choices" id="strength-choices">
+      <div class="choices" role="radiogroup" aria-labelledby="strength-title">
         <label><input type="radio" name="strength" value="0.3"><span>Light (30%)</span></label>
         <label><input type="radio" name="strength" value="0.4"><span>Medium (40%)</span></label>
         <label><input type="radio" name="strength" value="0.5"><span>Strong (50%)</span></label>
@@ -23,30 +23,30 @@
     </section>
 
     <section>
-      <h2>Tint color</h2>
-      <p class="help">The overlay color used by the tint toggle. Colored overlays help some readers more than others, so try a few.</p>
-      <div class="choices swatches" id="tint-choices">
-        <label><input type="radio" name="tint" value="cream"><span class="swatch" style="background:#faf4e3"></span><span>Cream</span></label>
-        <label><input type="radio" name="tint" value="blue"><span class="swatch" style="background:#e6f0fa"></span><span>Blue</span></label>
-        <label><input type="radio" name="tint" value="yellow"><span class="swatch" style="background:#fdf3cf"></span><span>Yellow</span></label>
-        <label><input type="radio" name="tint" value="green"><span class="swatch" style="background:#e8f4e4"></span><span>Green</span></label>
+      <h2 id="tint-title">Tint color</h2>
+      <p class="help">The overlay color used by the tint toggle. Different colors suit different readers, so try a few.</p>
+      <div class="choices" role="radiogroup" aria-labelledby="tint-title">
+        <label><input type="radio" name="tint" value="cream"><span class="swatch" style="background:#faf4e3" aria-hidden="true"></span><span>Cream</span></label>
+        <label><input type="radio" name="tint" value="blue"><span class="swatch" style="background:#e6f0fa" aria-hidden="true"></span><span>Blue</span></label>
+        <label><input type="radio" name="tint" value="yellow"><span class="swatch" style="background:#fdf3cf" aria-hidden="true"></span><span>Yellow</span></label>
+        <label><input type="radio" name="tint" value="green"><span class="swatch" style="background:#e8f4e4" aria-hidden="true"></span><span>Green</span></label>
       </div>
     </section>
 
     <section>
-      <h2>Ruler height</h2>
+      <h2><label for="ruler-height">Ruler height</label></h2>
       <p class="help">How tall the reading ruler band is.</p>
       <div class="slider-row">
         <input type="range" id="ruler-height" min="24" max="72" step="2">
-        <span class="value" id="ruler-height-value"></span>
+        <output for="ruler-height" id="ruler-height-value"></output>
       </div>
     </section>
 
     <section>
-      <h2>Read-aloud speed</h2>
+      <h2><label for="tts-rate">Read-aloud speed</label></h2>
       <div class="slider-row">
         <input type="range" id="tts-rate" min="0.7" max="1.3" step="0.1">
-        <span class="value" id="tts-rate-value"></span>
+        <output for="tts-rate" id="tts-rate-value"></output>
       </div>
     </section>
 

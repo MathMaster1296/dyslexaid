@@ -129,7 +129,7 @@ html[data-dyslexaid-calm="on"] {
 html[data-dyslexaid-focus="on"] #dyslexaid-focus { display: block; }
 
 /* ---------- 8. Hide images ---------- */
-/* Fade rather than remove, so layout holds; hover brings one back. */
+/* Fading keeps the layout intact; hovering brings one back. */
 html[data-dyslexaid-images="on"] body :is(img, picture, video, iframe, figure) {
   opacity: 0.12 !important;
   filter: grayscale(1);
@@ -147,3 +147,26 @@ html[data-dyslexaid-links="on"] body a {
   text-decoration: underline !important;
   text-underline-offset: 2px;
 }
+
+/* ---------- 10. Read-aloud indicator ---------- */
+/* Fixed pill in the corner while speech runs. White on #7a3a10 is
+   8.6:1, and the size is generous on purpose. */
+#dyslexaid-speaking {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2147483647;
+  font: 600 16px/1.2 -apple-system, "Segoe UI", system-ui, sans-serif;
+  padding: 14px 18px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: #7a3a10;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+#dyslexaid-speaking:focus-visible {
+  outline: 3px solid #ffd9b3;
+  outline-offset: 3px;
+}
+#dyslexaid-speaking[hidden] { display: none !important; }

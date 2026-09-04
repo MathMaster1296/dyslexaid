@@ -10,6 +10,8 @@ const $ = (sel) => document.querySelector(sel);
 async function render() {
   const s = await chrome.storage.sync.get(null);
 
+  document.documentElement.toggleAttribute("data-font", Boolean(s.font));
+
   const strength = String(s.bionicStrength || 0.4);
   for (const r of document.querySelectorAll('input[name="strength"]')) {
     r.checked = r.value === strength;
@@ -36,6 +38,7 @@ async function render() {
     name.textContent = host;
     const remove = document.createElement("button");
     remove.textContent = "Remove";
+    remove.setAttribute("aria-label", "Remove " + host + " from paused sites");
     remove.addEventListener("click", async () => {
       const { pausedSites = [] } = await chrome.storage.sync.get("pausedSites");
       chrome.storage.sync.set({ pausedSites: pausedSites.filter((h) => h !== host) });

@@ -1,9 +1,10 @@
 /* ============================================================
    DyslexAid popup logic.
-   The popup never talks to pages directly: it reads settings to
-   draw itself, and every control just WRITES to storage. Content
-   scripts in all open tabs pick the change up via
-   chrome.storage.onChanged, so storage stays the only source of truth.
+   The popup reads settings to draw itself, and every control just
+   writes to storage. Content scripts in all open tabs pick the change
+   up via chrome.storage.onChanged, so storage stays the only source
+   of truth. The one exception is read aloud, which is sent as a
+   message because it is a one-time action.
    ============================================================ */
 
 const $ = (sel) => document.querySelector(sel);
@@ -22,6 +23,7 @@ async function render() {
   for (const cb of checkboxes) {
     cb.checked = Boolean(s[cb.dataset.feature]);
   }
+  document.documentElement.toggleAttribute("data-font", Boolean(s.font));
   $("#zoom-value").textContent = (s.textZoom || 100) + "%";
 
   if (host) {
@@ -54,16 +56,36 @@ $("#site-toggle").addEventListener("change", async (e) => {
   chrome.storage.sync.set({ pausedSites: next });
 });
 
+/* Reset wipes every setting, including the options page and the
+   paused-site list, so it asks for a second click. The armed state
+   times out after a few seconds. */
+let resetTimer = null;
 $("#reset").addEventListener("click", () => {
-  chrome.storage.sync.clear();
+  if (resetTimer) {
+    clearTimeout(resetTimer);
+    resetTimer = null;
+    $("#reset").textContent = "Reset all";
+    chrome.storage.sync.clear();
+    return;
+  }
+  $("#reset").textContent = "Click again to confirm";
+  resetTimer = setTimeout(() => {
+    resetTimer = null;
+    $("#reset").textContent = "Reset all";
+  }, 4000);
 });
 
 $("#options").addEventListener("click", () => {
   chrome.runtime.openOptionsPage();
 });
 
-/* Read aloud is an action, not a setting, so it goes to the page
-   as a message. Closing the popup lets the user watch the page. */
+$("#shortcuts").addEventListener("click", () => {
+  chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
+});
+
+/* Read aloud happens once and is over, so there is nothing to store;
+   it goes to the page as a message. Closing the popup lets the user
+   watch the page. */
 $("#speak").addEventListener("click", async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab?.id) {

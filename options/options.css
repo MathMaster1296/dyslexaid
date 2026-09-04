@@ -1,76 +1,106 @@
-/* DyslexAid options page: same warm palette as the popup. */
+/* DyslexAid options page: same palette and contrast rules as the popup. */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Bold.woff2") format("woff2");
+  font-weight: 700;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
   background: #fffaf0;
   color: #2b2b2b;
 }
+html[data-font] body {
+  font-family: "OpenDyslexic", Verdana, sans-serif;
+  letter-spacing: 0.02em;
+}
 
 header {
-  padding: 26px 32px 20px;
-  background: linear-gradient(135deg, #ffb347, #ff8c61);
+  padding: 28px 32px 22px;
+  background: linear-gradient(135deg, #b84a18, #963a15);
   color: #fff;
 }
-h1 { font-size: 22px; }
-.tagline { font-size: 13px; opacity: 0.92; margin-top: 4px; }
+h1 { font-size: 24px; }
+.tagline { font-size: 15px; margin-top: 4px; }
 
-main { max-width: 520px; padding: 10px 32px 40px; }
+main { max-width: 560px; padding: 10px 32px 48px; }
 
 section {
-  padding: 22px 0;
-  border-bottom: 1px solid #f0e2c4;
+  padding: 24px 0;
+  border-bottom: 1px solid #e3d3b3;
 }
-h2 { font-size: 15px; margin-bottom: 4px; }
-.help { font-size: 12.5px; color: #6b6b6b; margin-bottom: 12px; }
+h2 { font-size: 17px; margin-bottom: 4px; }
+h2 label { cursor: pointer; }
+.help { font-size: 14px; color: #5c5346; margin-bottom: 14px; }
 
-.choices { display: flex; gap: 14px; flex-wrap: wrap; }
+.choices { display: flex; gap: 12px; flex-wrap: wrap; }
 .choices label {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
+  gap: 8px;
+  font-size: 15px;
   cursor: pointer;
-  padding: 7px 12px;
-  border: 1.5px solid #e4d7bd;
+  padding: 9px 14px;
+  border: 2px solid #8c8170;
   border-radius: 8px;
   background: #fff;
 }
+.choices input { width: 18px; height: 18px; accent-color: #c9541b; }
 .choices label:has(input:checked) {
-  border-color: #ff8c42;
-  background: #fff3dc;
+  border-color: #c9541b;
+  background: #fff0d6;
 }
-.choices input:focus-visible ~ span { outline: 2px solid #c0662d; outline-offset: 2px; }
+.choices label:has(input:focus-visible) {
+  outline: 3px solid #9a4416;
+  outline-offset: 2px;
+}
 .swatch {
-  width: 18px; height: 18px;
+  width: 20px; height: 20px;
   border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1px solid #8c8170;
   display: inline-block;
 }
 
-.slider-row { display: flex; align-items: center; gap: 14px; }
-input[type="range"] { flex: 1; accent-color: #ff8c42; }
-.value { font-size: 13px; font-weight: 600; min-width: 44px; }
+.slider-row { display: flex; align-items: center; gap: 16px; }
+input[type="range"] { flex: 1; height: 28px; accent-color: #c9541b; }
+input[type="range"]:focus-visible { outline: 3px solid #9a4416; outline-offset: 4px; }
+output { font-size: 15px; font-weight: 600; min-width: 52px; }
 
 #paused-list { list-style: none; }
 #paused-list li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: #fff;
-  border: 1px solid #e4d7bd;
+  border: 2px solid #8c8170;
   border-radius: 8px;
   margin-bottom: 8px;
-  font-size: 13.5px;
+  font-size: 15px;
 }
 #paused-list button {
   border: none;
   background: none;
-  color: #c0662d;
-  font-size: 12px;
+  color: #9a4416;
+  font: inherit;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
-#paused-list button:hover { text-decoration: underline; }
-.empty { font-size: 13px; color: #a89b83; }
+#paused-list button:hover { background: #fff0d6; text-decoration: underline; }
+#paused-list button:focus-visible { outline: 3px solid #9a4416; outline-offset: 2px; }
+.empty { font-size: 15px; color: #5c5346; }
+
+/* Author rules above outrank the browser default for [hidden]; restore it. */
+[hidden] { display: none !important; }

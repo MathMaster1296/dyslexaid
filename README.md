@@ -59,16 +59,31 @@ normal weight, so turning it back on is instant.
 
 Read aloud uses the browser's built-in speech synthesis, so the audio is
 generated on your machine and no text goes anywhere. It is also the one
-place the extension uses a message instead of a setting: reading aloud is a
-command to act now, not a state to remember, so the popup or the shortcut
-sends `{type: "speak"}` to the active tab and the content script speaks or
-stops.
+place the extension uses a message instead of a setting. Reading aloud
+happens once and is over, so there is nothing to store; the popup or the
+shortcut sends `{type: "speak"}` to the active tab and the content script
+speaks or stops. While speech runs, a large button sits in the corner of the
+page so you can see it is on and stop it with a click.
+
+The popup and settings page were built for the same readers as the
+features. Every text and control color was measured against WCAG AA
+(4.5:1 for text, 3:1 for controls), the toggles show a check mark so on and
+off are not told apart by color alone, type starts at 15px, everything works
+by keyboard with visible focus rings, switch animations turn off when your
+system asks for reduced motion, and if you turn on the friendly font, the
+popup uses it too.
 
 A few smaller details: the warm tint measures the page's background luminance
 and leaves dark-themed pages alone, since sepia over near-black just looks muddy; every
 popup control can be reached with Tab and toggled with Space, with visible
 focus rings; and the extension asks for only three permissions (`storage`,
 `activeTab`, and `scripting`).
+
+## Known limits
+
+The reading ruler and line focus follow the mouse only; there is no keyboard
+control for them yet. Read aloud has no per-word highlighting. Both are on
+the list.
 
 ## Privacy
 

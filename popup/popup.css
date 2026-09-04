@@ -1,36 +1,61 @@
-/* DyslexAid popup: small, warm, high-contrast. */
+/* DyslexAid popup: warm, large type, every color pair checked
+   against WCAG AA (4.5:1 for text, 3:1 for controls). Palette:
+     background   #fffaf0
+     text         #2b2b2b     muted text  #5c5346
+     accent       #9a4416     switch on   #c9541b   switch off #8c8170
+     header       #b84a18 to #963a15 with white text */
+
+/* The popup honors the user's own "friendly font" setting. */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Bold.woff2") format("woff2");
+  font-weight: 700;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  width: 300px;
+  width: 340px;
   font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.35;
   background: #fffaf0;
   color: #2b2b2b;
 }
+html[data-font] body {
+  font-family: "OpenDyslexic", Verdana, sans-serif;
+  letter-spacing: 0.02em;
+}
 
 header {
-  padding: 14px 16px 10px;
-  background: linear-gradient(135deg, #ffb347, #ff8c61);
+  padding: 14px 16px 12px;
+  background: linear-gradient(135deg, #b84a18, #963a15);
   color: #fff;
 }
-h1 { font-size: 18px; letter-spacing: 0.02em; }
-.tagline { font-size: 12px; opacity: 0.92; margin-top: 2px; }
+h1 { font-size: 20px; letter-spacing: 0.02em; }
+.tagline { font-size: 14px; margin-top: 2px; }
 
-#toggles { padding: 6px 0; }
+#toggles { padding: 4px 0; }
 
 .row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: 12px;
+  padding: 11px 16px;
   cursor: pointer;
+  position: relative;
 }
-.row:hover { background: #fff3dc; }
+.row:hover { background: #fff0d6; }
 
-.emoji { font-size: 18px; width: 24px; text-align: center; }
+.emoji { font-size: 20px; width: 26px; text-align: center; }
 .text { flex: 1; display: flex; flex-direction: column; }
-.name { font-size: 14px; font-weight: 600; }
-.desc { font-size: 11.5px; color: #6b6b6b; margin-top: 1px; }
+.name { font-size: 15px; font-weight: 600; }
+.desc { font-size: 13px; color: #5c5346; margin-top: 1px; }
 
 /* Toggle switch: the real checkbox is visually hidden but still
    focusable, so keyboard users can Tab to it and toggle with Space. */
@@ -40,9 +65,9 @@ h1 { font-size: 18px; letter-spacing: 0.02em; }
   opacity: 0;
 }
 .switch {
-  width: 38px; height: 22px;
-  border-radius: 11px;
-  background: #d8d0c0;
+  width: 44px; height: 26px;
+  border-radius: 13px;
+  background: #8c8170;
   position: relative;
   transition: background 0.15s;
   flex-shrink: 0;
@@ -50,30 +75,31 @@ h1 { font-size: 18px; letter-spacing: 0.02em; }
 .switch::after {
   content: "";
   position: absolute;
-  top: 2px; left: 2px;
-  width: 18px; height: 18px;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35);
   transition: left 0.15s;
 }
-.row input:checked + .switch { background: #ff8c42; }
-.row input:checked + .switch::after { left: 18px; }
-
-footer {
-  padding: 8px 16px 12px;
-  font-size: 11px;
-  color: #8a8272;
-  text-align: center;
+.row input:checked + .switch { background: #c9541b; }
+.row input:checked + .switch::after { left: 21px; }
+/* A check mark on the thumb, so on/off is not conveyed by color alone. */
+.row input:checked + .switch::before {
+  content: "\2713";
+  position: absolute;
+  left: 8px; top: 3px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
 }
 
-/* ---------- v1.1 additions ---------- */
 .site-row {
-  background: #fff3dc;
-  border-bottom: 1px solid #f0e2c4;
+  background: #fff0d6;
+  border-bottom: 1px solid #e3d3b3;
 }
 .site-row .desc {
-  max-width: 150px;
+  max-width: 190px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -83,75 +109,74 @@ footer {
 .stepper {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 .stepper button {
-  width: 24px; height: 24px;
+  width: 32px; height: 32px;
   border: none;
   border-radius: 50%;
   background: #ffd9b3;
   color: #7a4a1e;
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 700;
   cursor: pointer;
   line-height: 1;
 }
 .stepper button:hover { background: #ffc98f; }
 #zoom-value {
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 600;
-  min-width: 38px;
+  min-width: 44px;
   text-align: center;
 }
 
-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.hint { font-size: 10.5px; color: #a89b83; }
-#reset {
-  border: none;
-  background: none;
-  color: #c0662d;
-  font-size: 11.5px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 2px 4px;
-}
-#reset:hover { text-decoration: underline; }
-
-/* Keyboard focus rings */
-.row input:focus-visible + .switch,
-.stepper button:focus-visible,
-#reset:focus-visible {
-  outline: 2px solid #c0662d;
-  outline-offset: 2px;
-}
-
-/* ---------- v1.3 additions ---------- */
 button.row.action {
   width: 100%;
   border: none;
   background: none;
   font: inherit;
+  color: inherit;
   text-align: left;
-  border-top: 1px solid #f0e2c4;
+  border-top: 1px solid #e3d3b3;
 }
-button.row.action:hover { background: #fff3dc; }
-button.row.action:focus-visible {
-  outline: 2px solid #c0662d;
-  outline-offset: -2px;
+button.row.action:hover { background: #fff0d6; }
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px 12px;
+  border-top: 1px solid #e3d3b3;
 }
-.footer-buttons { display: flex; gap: 10px; }
-#options {
+footer button {
   border: none;
   background: none;
-  color: #7a6a4d;
-  font-size: 11.5px;
+  color: #9a4416;
+  font: inherit;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 6px 6px;
+  border-radius: 6px;
 }
-#options:hover { text-decoration: underline; }
+footer button:hover { background: #fff0d6; text-decoration: underline; }
+
+/* Keyboard focus rings */
+.row input:focus-visible + .switch,
+.stepper button:focus-visible,
+footer button:focus-visible {
+  outline: 3px solid #9a4416;
+  outline-offset: 2px;
+}
+button.row.action:focus-visible {
+  outline: 3px solid #9a4416;
+  outline-offset: -3px;
+}
+
+/* Motion-sensitive users get no animation, not even the switch slide. */
+@media (prefers-reduced-motion: reduce) {
+  .switch, .switch::after { transition: none; }
+}
+
+/* Author rules above outrank the browser default for [hidden]; restore it. */
+[hidden] { display: none !important; }

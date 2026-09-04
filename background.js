@@ -1,9 +1,8 @@
 /* ============================================================
    DyslexAid service worker.
-   Turns keyboard shortcuts into either a settings flip (feature
-   toggles, which every tab picks up from storage) or a message
-   to the active tab (read aloud, which is an action rather than
-   a state).
+   Turns keyboard shortcuts into settings flips, which every tab
+   picks up from storage. Read aloud is the exception: it happens
+   once, so it is sent to the active tab as a message.
    ============================================================ */
 
 const COMMAND_TO_FEATURE = {
